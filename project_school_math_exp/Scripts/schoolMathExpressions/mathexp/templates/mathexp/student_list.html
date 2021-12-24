@@ -1,0 +1,36 @@
+{% extends './base.html' %}
+{% load custom_tags %}
+{% block title %}Список учеников{% endblock %}
+{% block header %}
+
+{% endblock %}
+
+{% block content %}
+<h2>Список учеников</h2>
+<a href="{% url 'studentcreate' %}"><button class="btn-add margin-bottom-20">Добавить ученика</button></a>
+<div class="table-responsive">
+<table id="students" class="table table-striped table-sm table-form margin-auto">
+  <tr class="table-header">
+    <th>ФИО</th>
+    <th>Дата рождения</th>
+    <th>Дата поступления</th>
+    <th>Класс</th>
+      <th class="width-25"> </th>
+
+  </tr> 
+	<tr>
+  {% for list in  student_list %}
+  </tr>
+  <tr>
+      <td>{{ list.name }}</td>
+      <td>{{ list.birthDate}}</td>
+      <td>{{ list.admissionYear }}</td>
+      <td>{{ list.schoolClassNum }}{{ list.schoolClassName }}</td>
+      <td><a href="{% url 'studentupdate' list.id %}"><button class="btn btn-primary">Изменить</button></a> <a href="{% url 'studentdelete' list.id %}"><button class="btn-delete">Удалить</button></a></td>
+  </tr>
+  {% endfor %}
+</table>
+
+
+
+{% endblock %}

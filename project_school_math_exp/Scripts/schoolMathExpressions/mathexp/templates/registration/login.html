@@ -1,0 +1,42 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link type="text/css" href="{% static 'css/style.css' %}" rel="stylesheet" />
+    <link type="text/css" href="{% static 'css/bootstrap.css' %}" rel="stylesheet" />
+    <title>{% block title %}{% endblock %}</title>
+</head>
+<body class="login-page text-center">
+{% block content %}
+
+
+<main class="form-signin form-margin">
+    <h1 class="h3 mb-3 fw-normal">Авторизация</h1>
+<form class="login" method="post" action="{% url 'login' %}">
+    
+    <div>
+        {% csrf_token %}
+      
+      <div class="form-floating">
+        {{form.username.label_tag}}
+        {{ form.username }}
+    </div>
+          <div class="form-floating">
+           <div class="margin-top-10"> {{ form.password.label_tag }}</div>
+            {{ form.password }}
+        </div>
+        </div>
+      <input type="submit" class="margin-top-15 w-100 btn btn-lg btn-primary" value="Login"/>
+    </div>
+</form>
+</main>
+{% endblock %}
+</body>
+<footer>
+
+</footer>
+</html>
+

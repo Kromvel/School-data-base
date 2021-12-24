@@ -1,0 +1,11 @@
+{% extends "./base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block header %}
+<h2>Добро пожаловать, {{ user.username }}!</h2>
+
+{% endblock %}
+{% block content %}
+<h3>Это {{ title }}</h3>
+{% endblock %}

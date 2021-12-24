@@ -3,12 +3,14 @@ from django.db import models
 import datetime
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.core.exceptions import ValidationError
+from django.utils.translation import gettext as _
+from django.urls import reverse
 
 # Create your models here.
 class Student(models.Model):
     def current_year():
         return datetime.date.today().year
-    def max_value_current_year(self, value):
+    def max_value_current_year(value):
         return MaxValueValidator(Student.current_year())(value)
     WITHOUT_CLASS = 'класс не выбран'
     MEASURE_CHOICES_CLASS_NUM = [
@@ -40,11 +42,16 @@ class Student(models.Model):
     
     def __str__(self):
         return self.name
+    def get_absolute_url(self):
+        return reverse('studentlist')
+
+    class Meta:
+        ordering = ['name']
 
 class MathExpressions(models.Model):
-    def validate_even(self, value):
+    def validate_even(value):
         if value > 1 or value < 0 or type(value) != int:
-            raise ValidationError(_('%(value)s недопустимое значение: должно быть 0 или 1'), params={'значение': value})
+            raise ValidationError(_('%(value)s недопустимое значение: должно быть 0 или 1'), params={'value': value})
     
     name = models.ForeignKey(Student, on_delete=models.CASCADE)
     mathExpression = models.CharField(max_length=255)
@@ -53,4 +60,4 @@ class MathExpressions(models.Model):
     validMathResolve = models.PositiveIntegerField(default=0, validators=[validate_even])
     nonvalidMathResolve = models.PositiveIntegerField(default=0, validators=[validate_even])
     def __str__(self):
-        return 'Результаты ученика ' + self.name
+        return str(self.name)

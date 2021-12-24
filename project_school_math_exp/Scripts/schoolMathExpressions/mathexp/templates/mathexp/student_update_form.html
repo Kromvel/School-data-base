@@ -1,0 +1,10 @@
+{% extends './base.html' %}
+{% block content %}
+<h2>Изменить данные об ученике</h2>
+<form method="post">
+<div class="ingredient-create-form-div">
+  {% csrf_token %} {{ form.as_p }}
+  <input class="btn-add-form"  type="submit" value="Изменить" />
+</div>
+</form>
+{% endblock %}
