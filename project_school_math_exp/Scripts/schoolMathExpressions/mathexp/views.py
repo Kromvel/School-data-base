@@ -12,6 +12,8 @@ from .forms import *
 from django.contrib.auth.models import User
 from django.contrib.auth import logout
 from .models import *
+from django.db.models import Sum
+from django.db import connection
 
 # Create your views here.
 def logout_view(request): 
@@ -41,6 +43,26 @@ def get_auth(request):
     else:
         form = Loginform()
     return render(request, 'registration/login.html', {'form': form})
+@login_required
+def check_math_expression(request):
+
+    if request.method == 'POST':
+
+        form = MathExpressionsForm(request.POST)
+        name = request.POST["name"]
+        mathExpression = request.POST["mathExpression"]
+        studentQuery = Student.objects.all()
+        nameStudent = studentQuery.get(pk=name)
+        if form.is_valid():
+            return render(request, 'mathexp/mathexpressions_create_form.html', {'form': form,'namestudent': nameStudent, 'mathExpression': mathExpression})
+        '''
+        else:
+            return HttpResponse("invalid credentials")
+        '''
+    else:
+        form = MathExpressionsForm()
+    return render(request, 'mathexp/mathexpressions_create_form.html', {'form': form})
+    
 class StudentList(LoginRequiredMixin, ListView):
     model = Student
     template_name = "mathexp/student_list.html"
@@ -56,4 +78,5 @@ class StudentDelete(LoginRequiredMixin, DeleteView):
     model = Student
     template_name = "mathexp/student_delete_form.html"
     success_url = reverse_lazy('studentlist')
+
     

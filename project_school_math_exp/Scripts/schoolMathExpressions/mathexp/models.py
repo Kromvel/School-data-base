@@ -61,3 +61,5 @@ class MathExpressions(models.Model):
     nonvalidMathResolve = models.PositiveIntegerField(default=0, validators=[validate_even])
     def __str__(self):
         return str(self.name)
+    def get_absolute_url(self):
+        return reverse('studentlist')

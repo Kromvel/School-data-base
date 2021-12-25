@@ -26,4 +26,5 @@ urlpatterns = [
     path("student/create", views.StudentCreate.as_view(), name="studentcreate"),
     path("student/update/<pk>", views.StudentUpdate.as_view(), name="studentupdate"),
     path("student/delete/<pk>", views.StudentDelete.as_view(), name="studentdelete"),
+    path("mathexpressions/create", views.check_math_expression, name="mathexpressionscreate"),
 ]

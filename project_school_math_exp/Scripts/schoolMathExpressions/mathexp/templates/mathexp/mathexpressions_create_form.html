@@ -1,0 +1,20 @@
+{% extends './base.html' %}
+{% block content %}
+<h2>Проверить мат. выражение</h2>
+<form method="post">
+<div class="student-create-form-div">
+  {% csrf_token %} 
+  {{form.name.label_tag}}
+  {{ form.name }}
+  {{ form.mathExpression.label_tag }}
+  {{ form.mathExpression }}
+  {{ form.errors}}
+  <input class="btn-add-form" type="submit" value="Проверить" />
+  <div>
+    <h3>Результаты последней проверки</h3>
+  <p>Имя: {{namestudent}}</p>
+  <p>Пример: {{mathExpression}}</p>
+  </div>
+</div>
+</form>
+{% endblock %}
