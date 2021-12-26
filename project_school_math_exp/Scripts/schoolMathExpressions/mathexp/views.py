@@ -15,6 +15,7 @@ from .models import *
 from django.db.models import Sum
 from django.db import connection
 from .calculator import *
+from django.core import serializers
 
 # Create your views here.
 def logout_view(request): 
@@ -87,12 +88,26 @@ def check_math_expression(request):
 
 @login_required
 def math_expressions_list(request):
+  
     if request.method == 'POST':
         form = MathExpressionsListForm(request.POST)
         name = request.POST["name"]
-        print(name)
+        studentQuery = Student.objects.all()
+        nameStudent = studentQuery.get(pk=name)
+        print(nameStudent)
         if form.is_valid():
-            return render(request, 'mathexp/math_expressions_list.html', {'form': form})
+            students_data = [1,2,3,5,9]
+            if 'ученики' in str(nameStudent):
+                students_data = Student.objects.values().exclude(pk=6)
+                math_expressions_result = MathExpressions.objects.values('name_id').annotate(Sum('validExpression'),Sum('nonvalidExpression'),Sum('validMathResolve'),Sum('nonvalidMathResolve')).order_by('name_id')
+                context = {'form': form, 'students_exp_list': students_data, 'math_expressions_result': math_expressions_result}
+                return render(request, 'mathexp/math_expressions_list.html', context)
+            elif 'ученики' not in str(nameStudent):
+                students_data = Student.objects.values().exclude(pk=6)
+                math_expressions_result = MathExpressions.objects.filter(name_id=name).values('name_id').annotate(Sum('validExpression'),Sum('nonvalidExpression'),Sum('validMathResolve'),Sum('nonvalidMathResolve')).order_by('name_id')
+                context = {'form': form, 'students_exp_list': students_data, 'math_expressions_result': math_expressions_result}
+                return render(request, 'mathexp/math_expressions_list.html', context)
+            return render(request, 'mathexp/math_expressions_list.html', {'form': form, 'students_exp_list': students_data})
     else:
         form = MathExpressionsForm()
     return render(request, 'mathexp/math_expressions_list.html', {'form': form})

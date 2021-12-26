@@ -22,15 +22,37 @@
     <th>ФИО</th>
     <th>Выражения</th>
     <th>Вычисления</th>
-  </tr> 
-	<tr>
-
   </tr>
+  <tr> 
+  {% for instance in students_exp_list %}
+  {% for e in math_expressions_result%}
+  {% if instance.id == e.name_id %}
+</tr> 
   <tr>
-      <td>Тест</td>
-      <td>Тест</td>
-      <td>Тест</td>
+   
+      <td> {{ instance.name }}
+        <br>
+        {{ instance.birthDate }}
+        <br>
+        {{ instance.admissionYear }}
+        <br>
+        {{ instance.schoolClassNum }}
+        {{ instance.schoolClassName }}
+      </td>
+      
+      <td> Валидно: {{e.validExpression__sum}}
+        <br>
+        Невалидно: {{e.nonvalidExpression__sum}}
+      </td>
+      <td>
+        Правильно: {{e.validMathResolve__sum}}
+        <br>
+        Неправильно: {{e.nonvalidMathResolve__sum}}
+      </td>
+      {% endif %}
   </tr>
+  {% endfor %}
+  {% endfor %}
 
 </table>
 

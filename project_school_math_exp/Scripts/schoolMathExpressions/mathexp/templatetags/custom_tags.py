@@ -27,3 +27,6 @@ def get_class_num(name):
         print('class '+ classNum)
         return classNum
 '''
+@register.simple_tag
+def get_fields(obj):
+    return obj._meta.get_fields()

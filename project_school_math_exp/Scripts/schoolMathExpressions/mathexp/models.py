@@ -41,7 +41,7 @@ class Student(models.Model):
     schoolClassName = models.CharField(max_length=25, choices=MEASURE_CHOICES_CLASS_NAME, default=WITHOUT_CLASS)
     
     def __str__(self):
-        return self.name + ' ' + self.schoolClassNum + self.schoolClassName
+        return self.name
     def get_absolute_url(self):
         return reverse('studentlist')
 

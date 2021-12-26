@@ -49,8 +49,7 @@ class MathExpressionsForm(forms.Form):
         self.fields['ResolveNumber'].widget.attrs.update({'class': 'form-control'})
 
 class MathExpressionsListForm(forms.Form):
-    #name = forms.ModelChoiceField(empty_label='Choose category', queryset=Student.objects.all(), initial='Все ученики', label='Выберите ученика')
-    name = forms.ChoiceField(choices=Student.objects.values_list('name', flat=True))
+    name = forms.ModelChoiceField(empty_label='Choose category', queryset=Student.objects.all(), initial='Все ученики', label='Выберите ученика')
     def __init__(self, *args, **kwargs):
         super(MathExpressionsListForm, self).__init__(*args, **kwargs)
         self.fields['name'].widget.attrs.update({'class': 'form-control'})
