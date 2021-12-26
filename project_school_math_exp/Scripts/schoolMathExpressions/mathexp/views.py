@@ -14,6 +14,7 @@ from django.contrib.auth import logout
 from .models import *
 from django.db.models import Sum
 from django.db import connection
+from .calculator import *
 
 # Create your views here.
 def logout_view(request): 
@@ -51,10 +52,31 @@ def check_math_expression(request):
         form = MathExpressionsForm(request.POST)
         name = request.POST["name"]
         mathExpression = request.POST["mathExpression"]
-        studentQuery = Student.objects.all()
+        ResolveNumber = request.POST["ResolveNumber"]
+        studentQuery = Student.objects.all() 
         nameStudent = studentQuery.get(pk=name)
         if form.is_valid():
-            return render(request, 'mathexp/mathexpressions_create_form.html', {'form': form,'namestudent': nameStudent, 'mathExpression': mathExpression})
+            checkValidExpression = checkMathExp.check_valid(mathExpression)
+            invalid = 'Выражение невалидно'
+            if invalid not in checkValidExpression:
+                checkValidResolve = checkMathExp.eval_math(mathExpression)
+                if str(checkValidResolve) == ResolveNumber:
+                    mathExpressionQueryInstance = MathExpressions(name=nameStudent, mathExpression=mathExpression, validExpression=1, nonvalidExpression=0, validMathResolve=1, nonvalidMathResolve=0)
+                    mathExpressionQueryInstance.save()
+                    resolveResponseYes = 'Да, ответ ' + str(ResolveNumber) + ' правильный'
+                    return render(request, 'mathexp/mathexpressions_create_form.html', {'form': form,'namestudent': nameStudent, 'mathExpression': mathExpression, 'checkValidExpression': 'Да',
+                                                        'checkValidResolve': resolveResponseYes})
+                else:
+                    mathExpressionQueryInstance = MathExpressions(name=nameStudent, mathExpression=mathExpression, validExpression=1, nonvalidExpression=0, validMathResolve=0, nonvalidMathResolve=1)
+                    mathExpressionQueryInstance.save()
+                    resolveResponsNo = 'Нет, ответ ' + str(ResolveNumber) + ' неверный. Правильный ответ: ' + str(checkValidResolve)
+                    return render(request, 'mathexp/mathexpressions_create_form.html', {'form': form,'namestudent': nameStudent, 'mathExpression': mathExpression, 'checkValidExpression': 'Да',
+                                                                                'checkValidResolve': resolveResponsNo})
+            elif invalid in checkValidExpression:
+                mathExpressionQueryInstance = MathExpressions(name=nameStudent, mathExpression=mathExpression, validExpression=0, nonvalidExpression=1, validMathResolve=0, nonvalidMathResolve=0)
+                mathExpressionQueryInstance.save()
+                return render(request, 'mathexp/mathexpressions_create_form.html', {'form': form, 'namestudent': nameStudent, 'mathExpression': mathExpression, 'checkValidExpression': 'Нет',
+                                                                                'checkValidResolve': 'Неизвестно, так как пример составлен некорректно'})
         '''
         else:
             return HttpResponse("invalid credentials")
@@ -62,7 +84,19 @@ def check_math_expression(request):
     else:
         form = MathExpressionsForm()
     return render(request, 'mathexp/mathexpressions_create_form.html', {'form': form})
-    
+
+@login_required
+def math_expressions_list(request):
+    if request.method == 'POST':
+        form = MathExpressionsListForm(request.POST)
+        name = request.POST["name"]
+        print(name)
+        if form.is_valid():
+            return render(request, 'mathexp/math_expressions_list.html', {'form': form})
+    else:
+        form = MathExpressionsForm()
+    return render(request, 'mathexp/math_expressions_list.html', {'form': form})
+      
 class StudentList(LoginRequiredMixin, ListView):
     model = Student
     template_name = "mathexp/student_list.html"

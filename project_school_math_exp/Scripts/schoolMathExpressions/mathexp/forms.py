@@ -34,29 +34,27 @@ class StudentForm(ModelForm):
 
 
 class MathExpressionsForm(forms.Form):
-    
-    name = forms.ModelChoiceField(queryset=Student.objects.all())
-    mathExpression = forms.CharField(max_length= 255, label='Математическое выражение')
+    name = forms.ModelChoiceField(queryset=Student.objects.all(), label='Выберите ученика')
+    mathExpression = forms.CharField(max_length= 255, label='Пропишите математическое выражение')
+    ResolveNumber = forms.CharField(label='Укажите ответ')
+
     def clean_mathExpression(self):
-        checkSymbols = '0123456789+-*/.^()'
-        parenthesis = '()'
         data = self.cleaned_data['mathExpression']
-        for i in data:
-            parenthesisCount = 0
-            if i not in checkSymbols:
-                raise forms.ValidationError("В выражении есть некорректный символ, например: {}".format(i))
-            elif i in parenthesis:
-                parenthesisCount += 1
-                if parenthesisCount % 2 != 0:
-                    raise forms.ValidationError("Количество скобок нечетное")
-            elif data.isalpha() == False:
-                pass
         return data
     
     def __init__(self, *args, **kwargs):
         super(MathExpressionsForm, self).__init__(*args, **kwargs)
         self.fields['name'].widget.attrs.update({'class': 'form-control'})
         self.fields['mathExpression'].widget.attrs.update({'class': 'form-control'})
+        self.fields['ResolveNumber'].widget.attrs.update({'class': 'form-control'})
+
+class MathExpressionsListForm(forms.Form):
+    #name = forms.ModelChoiceField(empty_label='Choose category', queryset=Student.objects.all(), initial='Все ученики', label='Выберите ученика')
+    name = forms.ChoiceField(choices=Student.objects.values_list('name', flat=True))
+    def __init__(self, *args, **kwargs):
+        super(MathExpressionsListForm, self).__init__(*args, **kwargs)
+        self.fields['name'].widget.attrs.update({'class': 'form-control'})
+
     
     
 

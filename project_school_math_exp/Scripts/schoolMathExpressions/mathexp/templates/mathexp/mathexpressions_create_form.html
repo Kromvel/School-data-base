@@ -1,4 +1,5 @@
 {% extends './base.html' %}
+{% load custom_tags %}
 {% block content %}
 <h2>Проверить мат. выражение</h2>
 <form method="post">
@@ -6,14 +7,19 @@
   {% csrf_token %} 
   {{form.name.label_tag}}
   {{ form.name }}
+  
   {{ form.mathExpression.label_tag }}
   {{ form.mathExpression }}
+  {{ form.ResolveNumber.label_tag }}
+  {{ form.ResolveNumber }}
   {{ form.errors}}
   <input class="btn-add-form" type="submit" value="Проверить" />
   <div>
     <h3>Результаты последней проверки</h3>
   <p>Имя: {{namestudent}}</p>
   <p>Пример: {{mathExpression}}</p>
+  <p>Корректно ли составлен пример? {{checkValidExpression}}</p>
+  <p>Правильный ли дан ответ? {{checkValidResolve}}</p>
   </div>
 </div>
 </form>

@@ -1,0 +1,39 @@
+{% extends './base.html' %}
+{% load custom_tags %}
+{% block title %}Результаты новичков{% endblock %}
+{% block header %}
+
+{% endblock %}
+
+{% block content %}
+<h2>Результаты новичков</h2>
+
+<div class="table-responsive">
+  <div class="student-create-form-div">
+    <form method="post">
+  {% csrf_token %} 
+  {{form.name.label_tag}}
+  {{ form.name }}
+  <input class="btn-add-form" type="submit" value="Посмотреть результат" />
+    </form>
+  </div>
+<table id="students" class="table table-striped table-sm table-form margin-auto">
+  <tr class="table-header">
+    <th>ФИО</th>
+    <th>Выражения</th>
+    <th>Вычисления</th>
+  </tr> 
+	<tr>
+
+  </tr>
+  <tr>
+      <td>Тест</td>
+      <td>Тест</td>
+      <td>Тест</td>
+  </tr>
+
+</table>
+
+
+
+{% endblock %}

@@ -20,6 +20,7 @@
     {% endblock %}
     {% url 'studentlist' as studentlist %}
     {% url 'mathexpressionscreate' as mathexpressionscreate %}
+    {% url 'mathexplist' as mathexplist %}
 
 
 <header class="nav-menu d-flex justify-content-center py-3">
@@ -30,9 +31,13 @@
     class="nav-link active"
     {% else %} class="nav-link" {% endif %}>Список учеников</a></li>
     <li class="nav-item"><a href="{% url 'mathexpressionscreate' %}" 
-        {% if request.path|slice:":16" == '/mathexpressions' %} 
+        {% if request.path|slice:":23" == '/mathexpressions/create' %} 
         class="nav-link active"
         {% else %} class="nav-link" {% endif %}>Проверить мат. выражение</a></li>
+    <li class="nav-item"><a href="{% url 'mathexplist' %}" 
+        {% if request.path|slice:":21" == '/mathexpressions/list' %} 
+        class="nav-link active"
+        {% else %} class="nav-link" {% endif %}>Результаты учеников</a></li>
     </ul>
     <div class="col-md-3 text-end"> <a href="{% url 'logout' %}" class="btn btn-primary">Выйти</a> </div>
 </header>

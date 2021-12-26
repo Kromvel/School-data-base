@@ -27,4 +27,5 @@ urlpatterns = [
     path("student/update/<pk>", views.StudentUpdate.as_view(), name="studentupdate"),
     path("student/delete/<pk>", views.StudentDelete.as_view(), name="studentdelete"),
     path("mathexpressions/create", views.check_math_expression, name="mathexpressionscreate"),
+    path("mathexpressions/list", views.math_expressions_list, name="mathexplist"),
 ]
