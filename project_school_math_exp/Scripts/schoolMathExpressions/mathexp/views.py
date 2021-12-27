@@ -9,120 +9,205 @@ from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .forms import *
-from django.contrib.auth.models import User
 from django.contrib.auth import logout
 from .models import *
 from django.db.models import Sum
-from django.db import connection
 from .calculator import *
-from django.core import serializers
 
 # Create your views here.
+# view для кнопки выхода авторизованного пользователя
+@login_required
 def logout_view(request): 
     logout(request)
     return redirect('home')
+
+# view для кнопки выхода авторизованного пользователя
 @login_required
 def home(request):   
     context = {"name": "User", "title": "Система помощи ученикам школьникам в изучении математики"}
     return render(request, "mathexp/home.html", context)
 def get_auth(request):
-    # if this is a POST request we need to process the form data
+    # прописываем POST запрос как условие
     if request.method == 'POST':
-        # create a form instance and populate it with data from the request:
+        # создаем экземпляр формы и вносим полученные данные
         form = Loginform(request.POST)
         username = request.POST["username"]
         password = request.POST["password"]
         user = authenticate(request, username=username, password=password)
         if form.is_valid() and user is not None:
-            # process the data in form.cleaned_data as required
-            # ...
-            # redirect to a new URL:
+            # проверка на валидность и, если всё ок, то срабатывает редирект на главную страницу
             login(request, user)
             return HttpResponseRedirect("/")
         else:
             return HttpResponse("invalid credentials")
-    # if a GET (or any other method) we'll create a blank form
+    # если же был GET-запрос, либо сработало любое другое условие, то пользователь возвращается на страницу авторизации
     else:
         form = Loginform()
     return render(request, 'registration/login.html', {'form': form})
+
+# view для формы отправки математического выражения
 @login_required
 def check_math_expression(request):
-
+# прописываем POST запрос как условие
     if request.method == 'POST':
-
+        # создаем экземпляр формы и вносим полученные данные
         form = MathExpressionsForm(request.POST)
         name = request.POST["name"]
         mathExpression = request.POST["mathExpression"]
         ResolveNumber = request.POST["ResolveNumber"]
-        studentQuery = Student.objects.all() 
+        # К переменным из формы добавляем новые: В studentQuery сохраняем выгрузку по всем объектам таблицы Student
+        studentQuery = Student.objects.all()
+        # В nameStudent сохраняем выгрузку из Student именно по выбранному ученику
         nameStudent = studentQuery.get(pk=name)
+        # дальнейшие действия, если форма прошла проверку django на валидность
         if form.is_valid():
+            # сначала проверяем корректно ли был составлен пример
             checkValidExpression = checkMathExp.check_valid(mathExpression)
+            # объявляем переменную, которая содерижт часть текста из строки, которую вовзращает функция check_valid() при некорректно составленном примере
             invalid = 'Выражение невалидно'
+            # если в ответе checkMathExp.check_valid(mathExpression) нет строки с содержанием 'Выражение невалидно', то выполняются следующие действия
             if invalid not in checkValidExpression:
+                # Пример вычисляется в  checkMathExp.eval_math(mathExpression) и ответ записывается в переменную checkValidResolve
                 checkValidResolve = checkMathExp.eval_math(mathExpression)
+                # Если ответ из функции eval_math() совпал с ответом, который внес пользователь и которы был записан в ResolveNumber, то:
                 if str(checkValidResolve) == ResolveNumber:
-                    mathExpressionQueryInstance = MathExpressions(name=nameStudent, mathExpression=mathExpression, validExpression=1, nonvalidExpression=0, validMathResolve=1, nonvalidMathResolve=0)
+                    # объявляется переменная mathExpressionQueryInstance, которая загружает в таблицу MathExpressions полученные данные
+                    mathExpressionQueryInstance = MathExpressions(name=nameStudent, 
+                                                                  mathExpression=mathExpression, 
+                                                                  validExpression=1, 
+                                                                  nonvalidExpression=0, 
+                                                                  validMathResolve=1, 
+                                                                  nonvalidMathResolve=0
+                                                                  )
+                    # данные сохраняются
                     mathExpressionQueryInstance.save()
+                    # объявляется resolveResponseYes, в которой записывается ответ, отображаемый для пользователя на страницей с формой для мат. выражения
                     resolveResponseYes = 'Да, ответ ' + str(ResolveNumber) + ' правильный'
-                    return render(request, 'mathexp/mathexpressions_create_form.html', {'form': form,'namestudent': nameStudent, 'mathExpression': mathExpression, 'checkValidExpression': 'Да',
-                                                        'checkValidResolve': resolveResponseYes})
+                    # пользователь преходит на ту же страницу с обновленными данными
+                    return render(request, 'mathexp/mathexpressions_create_form.html', {'form': form,
+                                                                                        'namestudent': nameStudent, 
+                                                                                        'mathExpression': mathExpression, 
+                                                                                        'checkValidExpression': 'Да',
+                                                                                        'checkValidResolve': resolveResponseYes
+                                                                                        }
+                                  )
                 else:
-                    mathExpressionQueryInstance = MathExpressions(name=nameStudent, mathExpression=mathExpression, validExpression=1, nonvalidExpression=0, validMathResolve=0, nonvalidMathResolve=1)
+                    # Те же действия, но, если ответ в примере и ответ указанный пользователем не совпали
+                    mathExpressionQueryInstance = MathExpressions(name=nameStudent, 
+                                                                  mathExpression=mathExpression, 
+                                                                  validExpression=1, 
+                                                                  nonvalidExpression=0, 
+                                                                  validMathResolve=0, 
+                                                                  nonvalidMathResolve=1
+                                                                  )
                     mathExpressionQueryInstance.save()
                     resolveResponsNo = 'Нет, ответ ' + str(ResolveNumber) + ' неверный. Правильный ответ: ' + str(checkValidResolve)
-                    return render(request, 'mathexp/mathexpressions_create_form.html', {'form': form,'namestudent': nameStudent, 'mathExpression': mathExpression, 'checkValidExpression': 'Да',
-                                                                                'checkValidResolve': resolveResponsNo})
+                    return render(request, 'mathexp/mathexpressions_create_form.html', {'form': form,
+                                                                                        'namestudent': nameStudent,
+                                                                                        'mathExpression': mathExpression,
+                                                                                        'checkValidExpression': 'Да',
+                                                                                        'checkValidResolve': resolveResponsNo
+                                                                                        }
+                                  )
             elif invalid in checkValidExpression:
-                mathExpressionQueryInstance = MathExpressions(name=nameStudent, mathExpression=mathExpression, validExpression=0, nonvalidExpression=1, validMathResolve=0, nonvalidMathResolve=0)
+                # также формируется ответ как в примерах выше, но, при условии, что сам пример был составлен некорректно
+                mathExpressionQueryInstance = MathExpressions(name=nameStudent,
+                                                              mathExpression=mathExpression,
+                                                              validExpression=0,
+                                                              nonvalidExpression=1,
+                                                              validMathResolve=0,
+                                                              nonvalidMathResolve=0
+                                                              )
                 mathExpressionQueryInstance.save()
-                return render(request, 'mathexp/mathexpressions_create_form.html', {'form': form, 'namestudent': nameStudent, 'mathExpression': mathExpression, 'checkValidExpression': 'Нет',
-                                                                                'checkValidResolve': 'Неизвестно, так как пример составлен некорректно'})
-        '''
-        else:
-            return HttpResponse("invalid credentials")
-        '''
+                return render(request, 'mathexp/mathexpressions_create_form.html', {'form': form,
+                                                                                    'namestudent': nameStudent,
+                                                                                    'mathExpression': mathExpression,
+                                                                                    'checkValidExpression': 'Нет',
+                                                                                    'checkValidResolve': 'Неизвестно, так как пример составлен некорректно'
+                                                                                    }
+                              )
+
     else:
+        # любом другом случае просто формируется страница с формой
         form = MathExpressionsForm()
     return render(request, 'mathexp/mathexpressions_create_form.html', {'form': form})
 
+# view для выгрузки результатов учеников
 @login_required
 def math_expressions_list(request):
-  
+  # прописываем POST запрос как условие
     if request.method == 'POST':
+        # создаем экземпляр формы и вносим полученные данные
         form = MathExpressionsListForm(request.POST)
         name = request.POST["name"]
+        # К переменным из формы добавляем новые: В studentQuery сохраняем выгрузку по всем объектам таблицы Student
         studentQuery = Student.objects.all()
+        # В nameStudent сохраняем выгрузку из Student именно по выбранному ученику
         nameStudent = studentQuery.get(pk=name)
-        print(nameStudent)
+        # дальнейшие действия, если форма прошла проверку django на валидность
         if form.is_valid():
-            students_data = [1,2,3,5,9]
-            if 'ученики' in str(nameStudent):
+            # Чтобы разделить выгрузку по всем ученикам и по отдельности я добавил ученика с именем "Все ученики" в таблицу Students
+            # Ниже объявил переменную со строкой "ученики" в значении.
+            # Она нужна для проверки всех ли учеников хочет посмотреть пользователь или только кого-то конкретно
+            allStudents = 'ученики'
+            if allStudents in str(nameStudent):
+                # Если условие выполнено, то, значит, пользователь выбрал всех учеников
+                # В students_data получаем данные по всем элементам таблицы Student кроме строки с "Все ученики", id у нее 6, поэтому exclude(pk=6)
                 students_data = Student.objects.values().exclude(pk=6)
-                math_expressions_result = MathExpressions.objects.values('name_id').annotate(Sum('validExpression'),Sum('nonvalidExpression'),Sum('validMathResolve'),Sum('nonvalidMathResolve')).order_by('name_id')
-                context = {'form': form, 'students_exp_list': students_data, 'math_expressions_result': math_expressions_result}
-                return render(request, 'mathexp/math_expressions_list.html', context)
-            elif 'ученики' not in str(nameStudent):
+                # В math_expressions_result собираем агрегированные данные с результатами по всем ученикам, у которых они есть.
+                # В эту выборку не попадают те, которые ни разу не вносили на свое имя мат.выражения
+                math_expressions_result = MathExpressions.objects.values('name_id').annotate(Sum('validExpression'),
+                                                                                             Sum('nonvalidExpression'),
+                                                                                             Sum('validMathResolve'),
+                                                                                             Sum('nonvalidMathResolve')
+                                                                                             ).order_by('name_id')
+                # Данные для выгрузки в таблицу на странице собираеются в context
+                context = {'form': form, 
+                           'students_exp_list': students_data,
+                           'math_expressions_result': math_expressions_result
+                           }
+                return render(request, 'mathexp/math_expressions_list.html',
+                              context
+                              )
+            elif allStudents not in str(nameStudent):
+                # Если условие выполнено, то, значит, пользователь выбрал ученика
+                # В students_data получаем данные по всем элементам таблицы Student кроме строки с "Все ученики", id у нее 6, поэтому exclude(pk=6)
                 students_data = Student.objects.values().exclude(pk=6)
-                math_expressions_result = MathExpressions.objects.filter(name_id=name).values('name_id').annotate(Sum('validExpression'),Sum('nonvalidExpression'),Sum('validMathResolve'),Sum('nonvalidMathResolve')).order_by('name_id')
-                context = {'form': form, 'students_exp_list': students_data, 'math_expressions_result': math_expressions_result}
+                # В math_expressions_result собираем агрегированные данные с результатами по выбранному ученику
+                # Для этого добавляется .filter(name_id=name)
+                math_expressions_result = MathExpressions.objects.filter(name_id=name).values('name_id').annotate(Sum('validExpression'),
+                                                                                                                  Sum('nonvalidExpression'),
+                                                                                                                  Sum('validMathResolve'),
+                                                                                                                  Sum('nonvalidMathResolve')
+                                                                                                                  ).order_by('name_id')
+                # Данные для выгрузки в таблицу на странице собираеются в context
+                context = {'form': form,
+                           'students_exp_list': students_data,
+                           'math_expressions_result': math_expressions_result
+                           }
                 return render(request, 'mathexp/math_expressions_list.html', context)
-            return render(request, 'mathexp/math_expressions_list.html', {'form': form, 'students_exp_list': students_data})
+            # При другом условии просто отправляется форма
+            return render(request, 'mathexp/math_expressions_list.html', {'form': form})
     else:
         form = MathExpressionsForm()
+        # При другом условии просто отправляется форма
     return render(request, 'mathexp/math_expressions_list.html', {'form': form})
-      
+
+# класс для выгрузки списка учеников    
 class StudentList(LoginRequiredMixin, ListView):
     model = Student
     template_name = "mathexp/student_list.html"
+# класс для создания записи ученика
 class StudentCreate(LoginRequiredMixin, CreateView):
     model = Student
     template_name = "mathexp/student_create_form.html"
     form_class = StudentForm
+# класс для изменения записи ученика
 class StudentUpdate(LoginRequiredMixin, UpdateView):
     model = Student
     template_name = "mathexp/student_update_form.html"
     form_class = StudentForm
+# класс для удаления записи ученика
 class StudentDelete(LoginRequiredMixin, DeleteView):
     model = Student
     template_name = "mathexp/student_delete_form.html"

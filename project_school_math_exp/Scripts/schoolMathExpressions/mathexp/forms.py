@@ -5,8 +5,15 @@ from .models import *
 
 
 class Loginform(forms.Form):
-    username = forms.CharField(max_length= 25,label="Введите имя пользователя")
-    password = forms.CharField(max_length= 30, label='Введите пароль', widget=forms.PasswordInput)
+    # форма для авторизации
+    username = forms.CharField(max_length= 25,
+                               label="Введите имя пользователя"
+                               )
+    password = forms.CharField(max_length= 30,
+                               label='Введите пароль',
+                               widget=forms.PasswordInput
+                               )
+    
     def __init__(self, *args, **kwargs):
         super(Loginform, self).__init__(*args, **kwargs)
         self.fields['username'].widget.attrs.update({'class': 'form-control'})
@@ -14,6 +21,7 @@ class Loginform(forms.Form):
 
 
 class StudentForm(ModelForm):
+    # форма для списка учеников
     class Meta:
         model = Student
         fields = ['name', 'birthDate','admissionYear','schoolClassNum','schoolClassName']
@@ -34,13 +42,14 @@ class StudentForm(ModelForm):
 
 
 class MathExpressionsForm(forms.Form):
-    name = forms.ModelChoiceField(queryset=Student.objects.all(), label='Выберите ученика')
-    mathExpression = forms.CharField(max_length= 255, label='Пропишите математическое выражение')
+    # форма для прпоисывания математического выражения
+    name = forms.ModelChoiceField(queryset=Student.objects.all(),
+                                  label='Выберите ученика'
+                                  )
+    mathExpression = forms.CharField(max_length= 255,
+                                     label='Пропишите математическое выражение'
+                                     )
     ResolveNumber = forms.CharField(label='Укажите ответ')
-
-    def clean_mathExpression(self):
-        data = self.cleaned_data['mathExpression']
-        return data
     
     def __init__(self, *args, **kwargs):
         super(MathExpressionsForm, self).__init__(*args, **kwargs)
@@ -49,7 +58,12 @@ class MathExpressionsForm(forms.Form):
         self.fields['ResolveNumber'].widget.attrs.update({'class': 'form-control'})
 
 class MathExpressionsListForm(forms.Form):
-    name = forms.ModelChoiceField(empty_label='Choose category', queryset=Student.objects.all(), initial='Все ученики', label='Выберите ученика')
+     # форма для вывода результатов учеников
+    name = forms.ModelChoiceField(empty_label='Ученики',
+                                  queryset=Student.objects.all(),
+                                  initial='Все ученики',
+                                  label='Выберите ученика'
+                                  )
     def __init__(self, *args, **kwargs):
         super(MathExpressionsListForm, self).__init__(*args, **kwargs)
         self.fields['name'].widget.attrs.update({'class': 'form-control'})

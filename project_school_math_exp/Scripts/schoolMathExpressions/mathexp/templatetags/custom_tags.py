@@ -26,7 +26,8 @@ def get_class_num(name):
         classNum = forms.CharField(queryset=Student.objects.values().filter(pk=name_id)[0]['schoolClassNum'], label='Номер класса')
         print('class '+ classNum)
         return classNum
-'''
+
 @register.simple_tag
 def get_fields(obj):
     return obj._meta.get_fields()
+'''

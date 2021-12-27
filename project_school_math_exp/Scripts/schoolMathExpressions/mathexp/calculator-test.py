@@ -18,7 +18,5 @@ class CalculatorTest(TestCase):
             self.assertEqual('В выражении присутствуют некорректные символы', e.exception.args[0])
     
 
-
-
 if __name__ == '__main__':
     main()

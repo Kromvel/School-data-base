@@ -15,7 +15,7 @@
     
 {% endif %}
 
-<h1 class="display-2 text-center"><a href="{% url 'home' %}" class="headline">Главная страница</a></h1>
+<h1 class="display-2 text-center"><a href="{% url 'home' %}" class="headline">Школьная база данных</a></h1>
     {% block header %}
     {% endblock %}
     {% url 'studentlist' as studentlist %}
@@ -39,7 +39,7 @@
         class="nav-link active"
         {% else %} class="nav-link" {% endif %}>Результаты учеников</a></li>
     </ul>
-    <div class="col-md-3 text-end"> <a href="{% url 'logout' %}" class="btn btn-primary">Выйти</a> </div>
+    <div class="col-md-3 text-end"> <a href="{% url 'logout' %}" class="btn btn-primary btn-exit">Выйти</a> </div>
 </header>
 
     {% block content %}
