@@ -26,18 +26,24 @@
 <header class="nav-menu d-flex justify-content-center py-3">
    
     <ul class="nav nav-pills nav-font-size">
+    {% if perms.mathexp.view_student %}
     <li class="nav-item"><a href="{% url 'studentlist' %}" 
+       
     {% if request.path|slice:":8" == '/student' %} 
     class="nav-link active"
     {% else %} class="nav-link" {% endif %}>Список учеников</a></li>
+    
+    {% endif %}
     <li class="nav-item"><a href="{% url 'mathexpressionscreate' %}" 
         {% if request.path|slice:":23" == '/mathexpressions/create' %} 
         class="nav-link active"
         {% else %} class="nav-link" {% endif %}>Проверить мат. выражение</a></li>
+    {% if perms.mathexp.view_student %}
     <li class="nav-item"><a href="{% url 'mathexplist' %}" 
         {% if request.path|slice:":21" == '/mathexpressions/list' %} 
         class="nav-link active"
         {% else %} class="nav-link" {% endif %}>Результаты учеников</a></li>
+        {% endif %}
     </ul>
     <div class="col-md-3 text-end"> <a href="{% url 'logout' %}" class="btn btn-primary btn-exit">Выйти</a> </div>
 </header>

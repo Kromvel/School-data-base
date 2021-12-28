@@ -6,11 +6,10 @@ from django.http import HttpResponse, HttpResponseRedirect
 from .models import  *
 from django.views.generic import ListView
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from .forms import *
 from django.contrib.auth import logout
-from .models import *
 from django.db.models import Sum
 from .calculator import *
 
@@ -60,6 +59,7 @@ def check_math_expression(request):
         # В nameStudent сохраняем выгрузку из Student именно по выбранному ученику
         nameStudent = studentQuery.get(pk=name)
         # дальнейшие действия, если форма прошла проверку django на валидность
+        
         if form.is_valid():
             # сначала проверяем корректно ли был составлен пример
             checkValidExpression = checkMathExp.check_valid(mathExpression)
@@ -134,6 +134,7 @@ def check_math_expression(request):
 
 # view для выгрузки результатов учеников
 @login_required
+@permission_required('mathexp.view_mathexpressions', raise_exception=True)
 def math_expressions_list(request):
   # прописываем POST запрос как условие
     if request.method == 'POST':
@@ -189,26 +190,30 @@ def math_expressions_list(request):
             # При другом условии просто отправляется форма
             return render(request, 'mathexp/math_expressions_list.html', {'form': form})
     else:
-        form = MathExpressionsForm()
+        form = MathExpressionsListForm()
         # При другом условии просто отправляется форма
     return render(request, 'mathexp/math_expressions_list.html', {'form': form})
 
 # класс для выгрузки списка учеников    
-class StudentList(LoginRequiredMixin, ListView):
+class StudentList(LoginRequiredMixin, PermissionRequiredMixin, ListView):
+    permission_required = 'mathexp.view_student'
     model = Student
     template_name = "mathexp/student_list.html"
 # класс для создания записи ученика
-class StudentCreate(LoginRequiredMixin, CreateView):
+class StudentCreate(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
+    permission_required = 'mathexp.add_student'
     model = Student
     template_name = "mathexp/student_create_form.html"
     form_class = StudentForm
 # класс для изменения записи ученика
-class StudentUpdate(LoginRequiredMixin, UpdateView):
+class StudentUpdate(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
+    permission_required = 'mathexp.change_student'
     model = Student
     template_name = "mathexp/student_update_form.html"
     form_class = StudentForm
 # класс для удаления записи ученика
-class StudentDelete(LoginRequiredMixin, DeleteView):
+class StudentDelete(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
+    permission_required = 'mathexp.delete_student'
     model = Student
     template_name = "mathexp/student_delete_form.html"
     success_url = reverse_lazy('studentlist')
