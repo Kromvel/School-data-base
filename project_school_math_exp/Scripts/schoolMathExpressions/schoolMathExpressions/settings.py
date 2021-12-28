@@ -20,7 +20,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-y*l%+ke5jq07!ci2295zv#n!y3kwop+)!fv1*x&7a%f17j$lbq'
+SECRET_KEY = 'none'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -77,12 +77,12 @@ WSGI_APPLICATION = 'schoolMathExpressions.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
+        'ENGINE': 'django.db.backends.none',
         'NAME': 'school_data_base',
         'USER': 'root',
-        'PASSWORD': '567!pwdms!Cool',
-        'HOST': '127.0.0.1',
-        'PORT': '3306',    
+        'PASSWORD': 'none',
+        'HOST': 'none',
+        'PORT': 'none',    
     }
 
 }
